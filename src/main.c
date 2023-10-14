@@ -6,19 +6,25 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-//#define IMAGE "img/nisa.jpg"
-//#define OUTPUT_IMAGE "output/nisa"
-#define IMAGE "img/otter.png"
-#define OUTPUT_IMAGE "output/otter"
+#define JPEG_INPUT 0
+// #define IMAGE "img/nisa.jpg"
+// #define OUTPUT_IMAGE "output/nisa"
+#define IMAGE "img/alpaca.png"
+#define OUTPUT_IMAGE "output/alpaca"
+// #define IMAGE "img/redblue.png"
+// #define OUTPUT_IMAGE "output/redbluehue"
 
-#define MAX(X,Y) (X>Y) ? X:Y
-#define MIN(X,Y) (X<Y) ? X:Y
+#define MAX(X,Y) (((X)>(Y)) ? (X):(Y))
+#define MIN(X,Y) (((X)<(Y)) ? (X):(Y))
 
 typedef unsigned char u8;
 typedef struct {
     u8 R;
     u8 B;
     u8 G;
+#if JPEG_INPUT == 0
+    u8 A;
+#endif
 } Color;
 typedef float (*pixel_evaluator) (Color);
 
@@ -34,6 +40,8 @@ float hue_of_pixel(Color pixel) {
     
     float max = MAX(R, MAX(G, B));
     float min = MIN(R, MIN(G, B));
+    
+    if (max == min) max++; //TODO FUCKED
 
     if(max == R)        return (G - B) / (max - min);
     else if(max == G)   return 2.0 + (B - R) / (max - min);
@@ -41,7 +49,7 @@ float hue_of_pixel(Color pixel) {
 }
 
 void sort_buffer(Color *column, int length, pixel_evaluator eval) {
-    // using insertion sort
+    // using insertion sort    
     for (int i = 1; i < length; i++) {
         Color x = column[i];
         int j = i - 1;
@@ -82,24 +90,24 @@ void sort_image_horizontally(Color *img, int width, int height, pixel_evaluator 
 }
 
 int main() {
-    printf("%zu\n", sizeof(Color));
     int width, height, channels;
     Color *img = (Color*)stbi_load(IMAGE, &width, &height, &channels, 0);
     if (img == NULL) {
-        fprintf(stderr,"Error loading the image\n");
+        fprintf(stderr, "Error loading the image\n");
         exit(1);
     }
-    //sort_image_vertically(img, width, height, &hue_of_pixel);
-    sort_image_horizontally(img, width, height, &luminance_of_pixel);
+    sort_image_vertically(img, width, height, &hue_of_pixel);
+    // sort_image_horizontally(img, width, height, &hue_of_pixel);
+    // sort_image_horizontally(img, width, height, &luminance_of_pixel);
 
     if (!stbi_write_jpg(OUTPUT_IMAGE ".jpg", width, height, channels, img, 100)) {
-        fprintf(stderr, "Could not create image %s.jpg", OUTPUT_IMAGE);
+        fprintf(stderr, "Could not create image %s.jpg\n", OUTPUT_IMAGE);
     }
     if (!stbi_write_bmp(OUTPUT_IMAGE ".bmp", width, height, channels, img)) {
-        fprintf(stderr, "Could not create image %s.bmp", OUTPUT_IMAGE);
+        fprintf(stderr, "Could not create image %s.bmp\n", OUTPUT_IMAGE);
     }
     if (!stbi_write_png(OUTPUT_IMAGE ".png", width, height, channels, img, width * channels)) {
-        fprintf(stderr, "Could not create image %s.png", OUTPUT_IMAGE);
+        fprintf(stderr, "Could not create image %s.png\n", OUTPUT_IMAGE);
     }
     stbi_image_free(img);
     return 0;
