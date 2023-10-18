@@ -6,7 +6,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
-#define JPEG_INPUT 0
+#define TRANSPARENT_INPUT 0
 // #define IMAGE "img/nisa.jpg"
 // #define OUTPUT_IMAGE "output/nisa"
 #define IMAGE "img/alpaca.png"
@@ -22,7 +22,7 @@ typedef struct {
     u8 R;
     u8 B;
     u8 G;
-#if JPEG_INPUT == 0
+#if TRANSPARENT_INPUT == 1
     u8 A;
 #endif
 } Color;
@@ -96,9 +96,9 @@ int main() {
         fprintf(stderr, "Error loading the image\n");
         exit(1);
     }
-    sort_image_vertically(img, width, height, &hue_of_pixel);
+    // sort_image_vertically(img, width, height, &hue_of_pixel);
     // sort_image_horizontally(img, width, height, &hue_of_pixel);
-    // sort_image_horizontally(img, width, height, &luminance_of_pixel);
+     sort_image_horizontally(img, width, height, &luminance_of_pixel);
 
     if (!stbi_write_jpg(OUTPUT_IMAGE ".jpg", width, height, channels, img, 100)) {
         fprintf(stderr, "Could not create image %s.jpg\n", OUTPUT_IMAGE);
