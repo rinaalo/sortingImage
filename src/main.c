@@ -89,6 +89,29 @@ void sort_image_horizontally(Color *img, int width, int height, pixel_evaluator 
     free(row_buffer);
 }
 
+void sort_image_diagonally(Color *img, int width, int height, pixel_evaluator eval) {
+    size_t diameter = MIN(width, height);
+    int max_stripe = width + height - 1;
+    Color *diagonal_buffer = malloc(diameter * sizeof(Color));
+    for (int stripe = 0; stripe < max_stripe; stripe++) {
+        int column = MAX(0, stripe - width);
+        int row = MIN(height, stripe);
+        while (stripe < width && stripe < height) {
+            diagonal_buffer[stripe] = img[column + row * width];
+            column++;
+            row--;
+        }
+        int length = MIN(diameter, ((width + height)/2 - stripe - diameter - 1 + (width + height));
+        sort_buffer(diagonal_buffer, length, eval);
+        //     img[column + stripe * width] = diagonal_buffer[column];
+    }
+    free(diagonal_buffer);
+
+}
+
+void sort_image_diagonally2(Color *img, int width, int height, pixel_evaluator eval) {
+}
+
 int main() {
     int width, height, channels;
     Color *img = (Color*)stbi_load(IMAGE, &width, &height, &channels, 0);
